@@ -1,6 +1,7 @@
-// function getTimes
+// function autocomplete
 
-$( function() {
+$(document).ready(function() {
+
 var availableStations = [
 	 "Baker Street",
 	 "Charing Cross",
@@ -230,9 +231,9 @@ var availableStations = [
 	 "Covent Garden",
 	 "Finsbury Park",
 	 "Hatton Cross",
-	 "Heathrow Terminal 4",
-	 "Heathrow Terminal 5",
-	 "Heathrow Terminals 123",
+	 "Heathrow Airport Terminal 4",
+	 "Heathrow Airport Terminal 5",
+	 "Heathrow Airport Terminals 1-3",
 	 "Holloway Road",
 	 "Hounslow Central",
 	 "Hounslow East",
@@ -268,30 +269,43 @@ var availableStations = [
       position: { my: "left top", at: "left bottom", collision: "none" },
    
     });
-  } );
 
-var stationNames = $ ("#stations").val();
-  var stationsId = '';
-    $.ajax({
-      url: 'https://api.tfl.gov.uk/StopPoint/Search?query=acton%20town&modes=tube',
+ 
+
+  var stationId = '';
+  $('.btn').on('click', function() {
+    var stationName = $('#stations').val();
+    getStationId(stationName);
+   })
+
+ // function getStationId
+
+function getStationId(stationName){
+         
+      $.ajax({
+      url: 'https://api.tfl.gov.uk/StopPoint/Search?query='+ stationName +'&modes=tube',
       dataType: 'Json',
-      async: false,
-      success: function (data) {
-          useReturnData(data);
-          
+      async: true,
+      success: function(data){
+         var stationId = data.matches[0].id;
+         getTimes(stationId);
+         
+         console.log(data)
+      },
+      error: function(data){
+          console.log(data)
       }
-  });
+   });
+      
+ }
 
-function useReturnData(data){
-    stationsId = data;
-    console.log(stationsId);
-};
+// function getTimes
 
-function getTimes() {
+function getTimes(stationId) {
   
   $.ajax({
     type: 'GET',
-    url: 'https://api.tfl.gov.uk/StopPoint/940GZZLUACT/Arrivals?app_key=%20a73f7a36fab42a930bf7cf8b1616d995&app_id=be29441e',
+    url: 'https://api.tfl.gov.uk/StopPoint/'+ stationId +'/Arrivals?app_key=%20a73f7a36fab42a930bf7cf8b1616d995&app_id=be29441e',
     dataType: 'Json',
     success: function (data) {
       $("#board").html("");
@@ -351,3 +365,4 @@ window.onload = function () {
   setInterval(getClock, 60000);
 }
 // END window.onload
+});
